@@ -59,8 +59,11 @@ test-cover: ## Run all tests and display coverage
 
 ##@ Operations
 
-tag ?= $(shell bash -c 'read -p "Tag: " tag; echo $$tag')
+tag := $(shell bash -c 'read -p "Tag: " tag; echo $$tag')
 .PHONY: release
 release: no-dirty confirm ## Create a new release
-	@git tag -a $(tag)
+	@echo "$(CYAN)Creating tag$(NC) $(GREEN)$(tag)$(NC)..."
+	@git tag -s -a $(tag) -m "Release $(tag)"
+	@echo "$(CYAN)Pushing tag$(NC) $(GREEN)$(tag)$(NC)..."
 	@git push --tags
+	@echo "$(GREEN)Done!$(NC)"
