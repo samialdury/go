@@ -1,0 +1,135 @@
+name: Continuous Integration
+
+on:
+    workflow_dispatch:
+    push:
+        branches:
+            - 'main'
+        tags:
+            - 'v*'
+    pull_request:
+        types: [opened, synchronize]
+        branches:
+            - 'main'
+
+concurrency: ci-${{ github.ref_name }}
+
+
+env:
+    TERM: xterm-256color
+    COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    BRANCH_OR_TAG: ${{ github.event.pull_request.head.ref || github.ref_name }}
+    IS_MAIN: ${{ github.ref_name == 'main' }}
+    IS_PULL_REQUEST: ${{ github.event_name == 'pull_request' }}
+
+
+jobs:
+    test:
+        name: Test
+        runs-on: ubuntu-22.04
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              timeout-minutes: 2
+
+            - name: Setup Go
+              uses: WillAbides/setup-go-faster@v1
+              timeout-minutes: 2
+              with:
+                go-version-file: ./go.mod
+
+            - name: Run tests
+              timeout-minutes: 2
+              run: |
+                  go test -race -vet=off
+
+    format:
+        name: Format
+        runs-on: ubuntu-22.04
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              timeout-minutes: 2
+
+            - name: Setup Go
+              uses: WillAbides/setup-go-faster@v1
+              timeout-minutes: 2
+              with:
+                go-version-file: ./go.mod
+
+            - name: Format
+              timeout-minutes: 2
+              run: |
+                  go fmt ./...
+                  go mod tidy -v
+
+            - name: Check for changes
+              timeout-minutes: 2
+              run: |
+                  git diff --exit-code
+
+    lint:
+        name: Lint
+        runs-on: ubuntu-22.04
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              timeout-minutes: 2
+
+            - name: Setup Go
+              uses: WillAbides/setup-go-faster@v1
+              timeout-minutes: 2
+              with:
+                go-version-file: ./go.mod
+
+            - name: Run go vet
+              timeout-minutes: 2
+              run: |
+                  go vet ./...
+            
+            - name: Install staticcheck
+              uses: dominikh/staticcheck-action@v1
+              timeout-minutes: 2
+              with:
+                install-go: false
+                version: latest
+
+            - name: Run staticcheck
+              timeout-minutes: 2
+              run: |
+                  staticcheck ./...
+            
+            - name: Run golangci-lint
+              uses: golangci/golangci-lint-action@v3
+              timeout-minutes: 2
+              with:
+                version: latest
+
+    audit:
+        name: Audit
+        runs-on: ubuntu-22.04
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              timeout-minutes: 2
+
+            - name: Setup Go
+              uses: WillAbides/setup-go-faster@v1
+              timeout-minutes: 2
+              with:
+                go-version-file: ./go.mod
+
+            - name: Run go mod verify
+              timeout-minutes: 2
+              run: |
+                  go mod verify
+            
+            - name: Install govulncheck
+              timeout-minutes: 2
+              run: |
+                  go install golang.org/x/vuln/cmd/govulncheck@latest
+            
+            - name: Run govulncheck
+              timeout-minutes: 2
+              run: |
+                  govulncheck ./...
