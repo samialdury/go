@@ -33,45 +33,45 @@ jobs:
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
-                  gh extension install actions/gh-actions-cache
+                gh extension install actions/gh-actions-cache
 
-                  REPO=${{ github.repository }}
-                  BRANCH_INPUT=${{ inputs.branch }}
-                  LIMIT_INPUT=${{ inputs.limit }}
-                  MAX_LIMIT=100
+                REPO=${{ github.repository }}
+                BRANCH_INPUT=${{ inputs.branch }}
+                LIMIT_INPUT=${{ inputs.limit }}
+                MAX_LIMIT=100
 
-                  echo "Cleaning cache for repo $REPO and branch $BRANCH_INPUT with limit $LIMIT_INPUT"
+                echo "Cleaning cache for repo $REPO and branch $BRANCH_INPUT with limit $LIMIT_INPUT"
 
-                  set +e
+                set +e
 
-                  delete_caches() {
-                    local limit=$1
-                    local cacheKeys=$(gh actions-cache list -L $limit -R $REPO -B $BRANCH_INPUT --sort size --order desc | cut -f1)
+                delete_caches() {
+                local limit=$1
+                local cacheKeys=$(gh actions-cache list -L $limit -R $REPO -B $BRANCH_INPUT --sort size --order desc | cut -f1)
 
-                    echo "delete_caches() - limit $limit, repo $REPO, branch $BRANCH_INPUT"
+                echo "delete_caches() - limit $limit, repo $REPO, branch $BRANCH_INPUT"
 
-                    for cacheKey in $cacheKeys; do
-                      gh actions-cache delete $cacheKey -R $REPO -B $BRANCH_INPUT --confirm
-                    done
-                  }
+                for cacheKey in $cacheKeys; do
+                    gh actions-cache delete $cacheKey -R $REPO -B $BRANCH_INPUT --confirm
+                done
+                }
 
-                  # The max limit supported by the script is defined by the MAX_LIMIT variable. 
-                  # If it's greater, we need to split the limit into multiple requests.
-                  if [ "$LIMIT_INPUT" -le "$MAX_LIMIT" ]; then
-                    delete_caches $LIMIT_INPUT
-                  else
-                    TIMES=$((LIMIT_INPUT / MAX_LIMIT))
-                    REMAINDER=$((LIMIT_INPUT % MAX_LIMIT))
+                # The max limit supported by the script is defined by the MAX_LIMIT variable. 
+                # If it's greater, we need to split the limit into multiple requests.
+                if [ "$LIMIT_INPUT" -le "$MAX_LIMIT" ]; then
+                delete_caches $LIMIT_INPUT
+                else
+                TIMES=$((LIMIT_INPUT / MAX_LIMIT))
+                REMAINDER=$((LIMIT_INPUT % MAX_LIMIT))
 
-                    for i in $(seq 1 "$TIMES"); do
-                      delete_caches $MAX_LIMIT
-                    done
+                for i in $(seq 1 "$TIMES"); do
+                    delete_caches $MAX_LIMIT
+                done
 
-                    if [ "$REMAINDER" -gt 0 ]; then
-                      delete_caches $REMAINDER
-                    fi
-                  fi
+                if [ "$REMAINDER" -gt 0 ]; then
+                    delete_caches $REMAINDER
+                fi
+                fi
 
-                  set -e
+                set -e
 
-                  echo "Cache cleaned successfully"
+                echo "Cache cleaned successfully"

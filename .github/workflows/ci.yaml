@@ -14,7 +14,6 @@ on:
 
 concurrency: ci-${{ github.ref_name }}
 
-
 env:
     TERM: xterm-256color
     COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -41,7 +40,7 @@ jobs:
             - name: Run tests
               timeout-minutes: 2
               run: |
-                  go test -race -vet=off ./...
+                go test -race -vet=off ./...
 
     format:
         name: Format
@@ -60,13 +59,13 @@ jobs:
             - name: Format
               timeout-minutes: 2
               run: |
-                  go fmt ./...
-                  go mod tidy -v
+                go fmt ./...
+                go mod tidy -v
 
             - name: Check for changes
               timeout-minutes: 2
               run: |
-                  git diff --exit-code
+                git diff --exit-code
 
     lint:
         name: Lint
@@ -85,7 +84,7 @@ jobs:
             - name: Run go vet
               timeout-minutes: 2
               run: |
-                  go vet ./...
+                go vet ./...
             
             - name: Install staticcheck
               uses: dominikh/staticcheck-action@v1
@@ -97,7 +96,7 @@ jobs:
             - name: Run staticcheck
               timeout-minutes: 2
               run: |
-                  staticcheck ./...
+                staticcheck ./...
             
             - name: Run golangci-lint
               uses: golangci/golangci-lint-action@v3
@@ -122,14 +121,14 @@ jobs:
             - name: Run go mod verify
               timeout-minutes: 2
               run: |
-                  go mod verify
+                go mod verify
             
             - name: Install govulncheck
               timeout-minutes: 2
               run: |
-                  go install golang.org/x/vuln/cmd/govulncheck@latest
+                go install golang.org/x/vuln/cmd/govulncheck@latest
             
             - name: Run govulncheck
               timeout-minutes: 2
               run: |
-                  govulncheck ./...
+                govulncheck ./...

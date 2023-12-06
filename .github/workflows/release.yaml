@@ -29,7 +29,7 @@ jobs:
             - name: Fetch git tags
               timeout-minutes: 2
               run: |
-                  git fetch --force --tags
+                git fetch --force --tags
 
             - name: Setup Go
               uses: WillAbides/setup-go-faster@v1
