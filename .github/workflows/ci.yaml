@@ -41,7 +41,7 @@ jobs:
             - name: Run tests
               timeout-minutes: 2
               run: |
-                  go test -race -vet=off
+                  go test -race -vet=off ./...
 
     format:
         name: Format
