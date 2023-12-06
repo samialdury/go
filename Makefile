@@ -2,8 +2,7 @@
 
 COMMIT_SHA := $(shell git describe --dirty --always --tags --long)
 
-COVERAGE_DIR := coverage
-COVERAGE_FILE := $(COVERAGE_DIR)/coverage.out
+COVERAGE_FILE := /tmp/coverage.out
 
 STATIC_CHECK := go run honnef.co/go/tools/cmd/staticcheck@latest
 VULN_CHECK := go run golang.org/x/vuln/cmd/govulncheck@latest
