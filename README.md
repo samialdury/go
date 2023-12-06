@@ -3,7 +3,7 @@
 ## Install
 
 ```sh
-go get -u github.com/samialdury/go
+go get github.com/samialdury/go
 ```
 
 ## License
