@@ -2,6 +2,12 @@
 
 COMMIT_SHA := $(shell git describe --dirty --always --tags --long)
 
+RED := $(shell tput setaf 1)
+GREEN := $(shell tput setaf 2)
+YELLOW := $(shell tput setaf 3)
+CYAN := $(shell tput setaf 6)
+NC := $(shell tput sgr0)
+
 COVERAGE_FILE := /tmp/coverage.out
 
 STATIC_CHECK := go run honnef.co/go/tools/cmd/staticcheck@latest
@@ -16,7 +22,11 @@ help: ## Display this help
 
 .PHONY: confirm
 confirm: ## Ask for confirmation before continuing
-	@echo 'Are you sure? [y/N] ' && read ans && [ $${ans:-N} = y ]
+	@echo '$(YELLOW)Are you sure?$(NC) [y/N] ' && read ans && [ $${ans:-N} = y ]
+
+.PHONY: no-dirty
+no-dirty: ## Check if there are uncommitted changes
+	@git diff --quiet --exit-code || (echo "$(RED)Uncommitted changes$(NC)" && exit 1)
 
 ##@ Code quality
 
@@ -46,3 +56,12 @@ test: ## Run all tests
 test-cover: ## Run all tests and display coverage
 	@go test -v -race -buildvcs -coverprofile=$(COVERAGE_FILE) ./...
 	@go tool cover -html=$(COVERAGE_FILE)
+
+##@ Operations
+
+tag ?= $(shell bash -c 'read -p "Tag: " tag; echo $$tag')
+.PHONY: release
+release: no-dirty confirm ## Create a new release
+	@echo "$(CYAN)Creating release$(NC) $(GREEN)$(tag)$(NC)..."
+	@git tag $(tag)
+	@git push --tags
