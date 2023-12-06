@@ -1,0 +1,48 @@
+name: Release
+
+on:
+    workflow_dispatch:
+    push: 
+        tags: 
+            - 'v*.*.*'
+
+concurrency: release-${{ github.ref_name }}
+
+permissions:
+    contents: write
+
+env:
+    TERM: xterm-256color
+    COMMIT_SHA: ${{  github.sha }}
+    TAG: ${{ github.ref_name }}
+
+jobs:
+    goreleaser:
+        runs-on: ubuntu-22.04
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              timeout-minutes: 2
+              with:
+                fetch-depth: 0
+
+            - name: Fetch git tags
+              timeout-minutes: 2
+              run: |
+                  git fetch --force --tags
+
+            - name: Setup Go
+              uses: WillAbides/setup-go-faster@v1
+              timeout-minutes: 2
+              with:
+                go-version-file: ./go.mod
+
+            - name: Run GoRelaser
+              uses: goreleaser/goreleaser-action@v5
+              timeout-minutes: 2
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                distribution: goreleaser
+                version: latest
+                args: release --clean
