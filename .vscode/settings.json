@@ -1,0 +1,12 @@
+{
+    "yaml.format.enable": true,
+    "yaml.validate": true,
+    "yaml.schemas": {
+        "https://goreleaser.com/static/schema.json": [".goreleaser.yaml"]
+    },
+    "[yaml]": {
+        "editor.defaultFormatter": "redhat.vscode-yaml",
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4
+    }
+}
