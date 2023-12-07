@@ -21,8 +21,8 @@ help: ## Display this help
 	@awk 'BEGIN {FS = ":.*##"; printf "Usage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 .PHONY: confirm
-confirm: ## Ask for confirmation before continuing
-	@echo '$(YELLOW)Are you sure?$(NC) [y/N] ' && read ans && [ $${ans:-N} = y ]
+confirm: ## Ask for confirmation before continuing (q=<question>?)
+	@echo '$(YELLOW)$(or $(q), Are you sure?)$(NC) [y/N] ' && read ans && [ $${ans:-N} = y ]
 
 .PHONY: no-dirty
 no-dirty: ## Check if there are uncommitted changes
@@ -59,9 +59,13 @@ test-cover: ## Run all tests and display coverage
 
 ##@ Operations
 
-tag := $(shell bash -c 'read -p "Tag: " tag; echo $$tag')
+.PHONY: tag-prompt
+tag-prompt:
+	$(eval tag := $(shell bash -c 'read -p "Tag: " tag; echo $$tag'))
+
 .PHONY: release
-release: no-dirty confirm ## Create a new release
+release: no-dirty tag-prompt ## Create a new release
+	@$(MAKE) confirm q="Release $(tag)?"
 	@echo "$(CYAN)Creating tag$(NC) $(GREEN)$(tag)$(NC)..."
 	@git tag -s -a $(tag) -m "Release $(tag)"
 	@echo "$(CYAN)Pushing tag$(NC) $(GREEN)$(tag)$(NC)..."
