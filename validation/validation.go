@@ -7,7 +7,9 @@ import (
 	en_translations "github.com/go-playground/validator/v10/translations/en"
 )
 
-func NewValidator() (*validator.Validate, ut.Translator) {
+// NewValidator returns a new validator instance along with
+// registered English translator for the validation errors.
+func NewValidator() (*validator.Validate, ut.Translator, error) {
 	validate := validator.New(validator.WithRequiredStructEnabled())
 
 	english := en.New()
@@ -18,8 +20,8 @@ func NewValidator() (*validator.Validate, ut.Translator) {
 	err := en_translations.RegisterDefaultTranslations(validate, trans)
 
 	if err != nil {
-		panic(err)
+		return nil, nil, err
 	}
 
-	return validate, trans
+	return validate, trans, nil
 }

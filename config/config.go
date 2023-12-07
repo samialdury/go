@@ -22,7 +22,7 @@ func Parse[T any](s *T) error {
 
 // Validate validates a struct containing `env` tags.
 func Validate[T any](s *T) error {
-	v, t := validation.NewValidator()
+	v, t, _ := validation.NewValidator()
 
 	v.RegisterTagNameFunc(func(fld reflect.StructField) string {
 		name := strings.SplitN(fld.Tag.Get("env"), ",", 2)[0]

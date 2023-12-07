@@ -8,14 +8,14 @@ import (
 )
 
 func TestNewValidator(t *testing.T) {
-	validate, translator := NewValidator()
+	validate, translator, _ := NewValidator()
 
 	assert.NotNil(t, validate, "Validator should not be nil")
 	assert.NotNil(t, translator, "Translator should not be nil")
 }
 
 func TestStructValidation(t *testing.T) {
-	validate, _ := NewValidator()
+	validate, _, _ := NewValidator()
 
 	type TestStruct struct {
 		Field string `validate:"required"`
@@ -27,7 +27,7 @@ func TestStructValidation(t *testing.T) {
 }
 
 func TestTranslationFunctionality(t *testing.T) {
-	validate, translator := NewValidator()
+	validate, translator, _ := NewValidator()
 
 	type TestStruct struct {
 		Name  string `validate:"required"`
