@@ -99,7 +99,7 @@ jobs:
                 staticcheck ./...
             
             - name: Run golangci-lint
-              uses: golangci/golangci-lint-action@v3
+              uses: golangci/golangci-lint-action@v4
               timeout-minutes: 2
               with:
                 version: latest
